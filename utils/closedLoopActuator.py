@@ -9,7 +9,7 @@ class closedLoopActuator():
         Generates CPU load by tuning the sleep time
     """
 
-    def __init__(self, controller, monitor, cpu_core, target):
+    def __init__(self, controller, monitor, target):
         self.controller = controller
         self.monitor = monitor
         self.target = target
