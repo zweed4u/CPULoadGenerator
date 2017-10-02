@@ -4,7 +4,7 @@
 import time
 
 
-# TODO sleep time governs the cpu usage!!!
+# TODO sleep time governs the cpu usage - the smaller the value the higher the load
 
 class closedLoopActuator():
     """

@@ -30,12 +30,9 @@ class ControllerThread(threading.Thread):
     def getSleepTime(self):
         return self.sleepTime
 
-    def cpu_model(self, cpu_period):
-        sleepTime = self.period - cpu_period
-        return sleepTime
-
     def setCpu(self, cpu):
-        self.cpu = self.alpha * cpu + (1 - self.alpha) * self.cpu  # first order filter on the measurement samples
+        # first order filter on the measurement samples
+        self.cpu = self.alpha * cpu + (1 - self.alpha) * self.cpu
 
     def setCpuTarget(self, CT):
         self.CT = CT
@@ -59,4 +56,4 @@ class ControllerThread(threading.Thread):
             if self.cpuPeriod > self.period:
                 self.cpuPeriod = self.period
                 self.int_err = self.int_err - self.err * samp_int
-            self.sleepTime = self.cpu_model(self.cpuPeriod)
+            self.sleepTime = self.period - self.cpuPeriod

@@ -25,12 +25,6 @@ class MonitorThread(threading.Thread):
     def getCpuLoad(self):
         return self.cpu
 
-    def setSleepTime(self, sleepTime):
-        self.sleepTime = sleepTime
-
-    def setCPUTarget(self, cpuTarget):
-        self.cpuTarget = cpuTarget
-
     def run(self):
         p = psutil.Process(os.getpid())
         if len(self.cpu_cores) > 0:
