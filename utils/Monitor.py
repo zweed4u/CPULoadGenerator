@@ -3,7 +3,7 @@
 
 import os, psutil
 import threading
-
+import multiprocessing
 
 class MonitorThread(threading.Thread):
     """
@@ -33,8 +33,10 @@ class MonitorThread(threading.Thread):
 
     def run(self):
         p = psutil.Process(os.getpid())
-        p.cpu_affinity(self.cpu_cores)
-
+        if len(self.cpu_cores) > 0:
+            p.cpu_affinity(self.cpu_cores)
+        else:
+            p.cpu_affinity([coreNum for coreNum in range(multiprocessing.cpu_count())])
         while self.running:
             self.sample = p.cpu_percent(self.sampling_interval)
             # first order filter on the measurement samples
