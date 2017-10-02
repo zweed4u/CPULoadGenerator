@@ -3,8 +3,6 @@
 # Authors: Gaetano Carlucci
 #         Giuseppe Cofano
 
-import multiprocessing
-from twisted.python import usage
 
 import sys
 
@@ -15,30 +13,12 @@ from utils.Controller import ControllerThread
 from utils.closedLoopActuator import closedLoopActuator
 
 
-class Options(usage.Options):
-    """
-       Defines the default input parameters
-    """
-    optParameters = [
-        ["cpuLoad", "l", 0.2, "Cpu Target Load", float],
-    ]
 
 
 if __name__ == "__main__":
 
-    import sys
-
-    options = Options()
-    try:
-        options.parseOptions()
-    except Exception, e:
-        print '%s: %s' % (sys.argv[0], e)
-        print '%s: Try --help for usage details.' % (sys.argv[0])
-        sys.exit(1)
-    else:
-        if options['cpuLoad'] < 0 or options['cpuLoad'] > 1:
-            print "CPU target load out of the range [0,1]"
-            sys.exit(1)
+    # Invoke ./CPULoadGenerator.py <percentage> eg. .01 - 1.0
+    cpuLoad = float(sys.argv[-1])
 
     # 0 = core0
     cores = [0]
@@ -48,10 +28,10 @@ if __name__ == "__main__":
 
     control = ControllerThread(0.1)
     control.start()
-    control.setCpuTarget(options['cpuLoad']) # float eg. .1 =10% 1.0=100%
+    control.setCpuTarget(cpuLoad) # float eg. .1 =10% 1.0=100%
 
     # control thread, monitor thread, desired cpu usage
-    actuator = closedLoopActuator(control, monitor, options['cpuLoad'])
+    actuator = closedLoopActuator(control, monitor, cpuLoad)
     actuator.run()
 
     monitor.running = 0
