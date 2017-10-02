@@ -9,9 +9,9 @@ from twisted.python import usage
 import sys
 sys.path.insert(0, 'utils')
 
-from Monitor import MonitorThread
-from Controller import ControllerThread
-from closedLoopActuator import closedLoopActuator
+from utils.Monitor import MonitorThread
+from utils.Controller import ControllerThread
+from utils.closedLoopActuator import closedLoopActuator
 
 class Options(usage.Options):
     """
@@ -19,8 +19,6 @@ class Options(usage.Options):
     """
     optParameters = [
             ["cpuLoad", "l", 0.2, "Cpu Target Load", float],
-            ["duration", "d", 10, "Duration", int],
-            ["plot", "p" , 0, "Enable Plot", int],
             ["cpu_core", "c" , 0, "Select the CPU on which generate the load", int]
         ]
                  
@@ -38,12 +36,6 @@ if __name__ == "__main__":
         if options['cpuLoad'] < 0 or options['cpuLoad'] > 1: 
             print "CPU target load out of the range [0,1]"
             sys.exit(1)
-        if options['duration'] < 0: 
-            print "Invalid duration"
-            sys.exit(1)
-        if options['plot'] != 0 and options['plot'] != 1: 
-            print "plot can be enabled 1 or disabled 0"
-            sys.exit(1)
         if options['cpu_core'] >= multiprocessing.cpu_count(): 
             print "You have only %d cores on your machine" % (multiprocessing.cpu_count())
             sys.exit(1)
@@ -55,9 +47,8 @@ if __name__ == "__main__":
     control.start()
     control.setCpuTarget(options['cpuLoad'])
 
-    actuator = closedLoopActuator(control, monitor, options['duration'], options['cpu_core'], options['cpuLoad'], options['plot'])
+    actuator = closedLoopActuator(control, monitor, options['cpu_core'], options['cpuLoad'])
     actuator.run()
-    actuator.close()
 
     monitor.running = 0;
     control.running = 0;
