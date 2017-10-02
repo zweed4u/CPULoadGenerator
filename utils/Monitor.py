@@ -3,8 +3,7 @@
 
 import os, psutil
 import threading
-import time
-import multiprocessing
+
 
 class MonitorThread(threading.Thread):
     """
@@ -20,15 +19,11 @@ class MonitorThread(threading.Thread):
         self.sleepTimeTarget = 0.03
         self.sleepTime = 0.03
         self.cpuTarget = 0.5
-        self.cpu_cores = cpu_cores # array to support on process on multiple cores
-        self.dynamics = {"time": [], "cpu": [], "sleepTimeTarget": [], "cpuTarget": [], "sleepTime": [], }
+        self.cpu_cores = cpu_cores  # array to support on process on multiple cores
         super(MonitorThread, self).__init__()
 
     def getCpuLoad(self):
         return self.cpu
-
-    def setSleepTimeTarget(self, sleepTimeTarget):
-        self.sleepTimeTarget = sleepTimeTarget
 
     def setSleepTime(self, sleepTime):
         self.sleepTime = sleepTime
@@ -36,32 +31,11 @@ class MonitorThread(threading.Thread):
     def setCPUTarget(self, cpuTarget):
         self.cpuTarget = cpuTarget
 
-    def getDynamics(self):
-        return self.dynamics
-
     def run(self):
-        start_time = time.time()
         p = psutil.Process(os.getpid())
-        try:
-            p.set_cpu_affinity(self.cpu_cores)
-        except AttributeError:
-            p.cpu_affinity(self.cpu_cores)
+        p.cpu_affinity(self.cpu_cores)
 
         while self.running:
-            try:
-                #self.sample = sum(psutil.cpu_percent(self.sampling_interval, percpu=True)) / multiprocessing.cpu_count()
-                #self.sample = p.get_cpu_percent(self.sampling_interval)
-                self.sample = sum(psutil.cpu_percent(percpu=True)) / multiprocessing.cpu_count()
-            except AttributeError:
-                #self.sample = sum(psutil.cpu_percent(self.sampling_interval, percpu=True)) / multiprocessing.cpu_count()
-                #self.sample = p.cpu_percent(self.sampling_interval)
-                self.sample = sum(psutil.cpu_percent(percpu=True)) / multiprocessing.cpu_count()
-
-            self.cpu = self.alpha * self.sample + (
-                                                  1 - self.alpha) * self.cpu  # first order filter on the measurement samples
-            # self.cpu_log.append(self.cpu)
-            self.dynamics['time'].append(time.time() - start_time)
-            self.dynamics['cpu'].append(self.cpu)
-            self.dynamics['sleepTimeTarget'].append(self.sleepTimeTarget)
-            self.dynamics['sleepTime'].append(self.sleepTime)
-            self.dynamics['cpuTarget'].append(self.cpuTarget)
+            self.sample = p.cpu_percent(self.sampling_interval)
+            # first order filter on the measurement samples
+            self.cpu = self.alpha * self.sample + (1 - self.alpha) * self.cpu

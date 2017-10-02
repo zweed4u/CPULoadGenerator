@@ -4,7 +4,6 @@
 #         Giuseppe Cofano
 
 import multiprocessing
-import psutil
 from twisted.python import usage
 
 import sys
@@ -42,13 +41,16 @@ if __name__ == "__main__":
             sys.exit(1)
 
     # 0 = core0
-    monitor = MonitorThread([coreNum for coreNum in range(multiprocessing.cpu_count())], 0.1)
+    cores = [0]
+    #monitor = MonitorThread([coreNum for coreNum in range(multiprocessing.cpu_count())], 0.1)
+    monitor = MonitorThread(cores, 0.1)
     monitor.start()
 
     control = ControllerThread(0.1)
     control.start()
-    control.setCpuTarget(options['cpuLoad'])
+    control.setCpuTarget(options['cpuLoad']) # float eg. .1 =10% 1.0=100%
 
+    # control thread, monitor thread, desired cpu usage
     actuator = closedLoopActuator(control, monitor, options['cpuLoad'])
     actuator.run()
 

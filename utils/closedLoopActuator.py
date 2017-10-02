@@ -4,12 +4,20 @@
 import time
 
 
+# TODO sleep time governs the cpu usage!!!
+
 class closedLoopActuator():
     """
         Generates CPU load by tuning the sleep time
     """
 
     def __init__(self, controller, monitor, target):
+        """
+        The constructor for out 'actuator'
+        :param controller: thread that controls the CPU status
+        :param monitor: thread that monitors the CPU status
+        :param target: float - .50 = 50% the cpu load desired
+        """
         self.controller = controller
         self.monitor = monitor
         self.target = target
@@ -22,7 +30,7 @@ class closedLoopActuator():
         interval = time.time() + self.period - sleep_time
         # generates some getCpuLoad for interval seconds
         while (time.time() < interval):
-            pr = 213123  # generates some load
+            pr = 213123 # generates some load
             pr * pr
             pr = pr + 1
 
