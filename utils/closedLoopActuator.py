@@ -41,14 +41,3 @@ class closedLoopActuator():
             self.controller.setCpu(self.monitor.getCpuLoad())
             sleep_time = self.controller.getSleepTime()
             self.generate_load(sleep_time)
-
-    def run_sequence(self, sequence):
-        for cpuTarget in sequence:
-            stepPeriod = time.time() + 4
-            self.controller.setCpuTarget(cpuTarget)
-            self.monitor.setCPUTarget(cpuTarget)
-            while (time.time() < stepPeriod):
-                self.controller.setCpu(self.monitor.getCpuLoad())
-                sleep_time = self.controller.getSleepTime()
-                self.generate_load(sleep_time)
-                self.monitor.setSleepTime(sleep_time)
