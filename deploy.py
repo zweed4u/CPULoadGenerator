@@ -1,32 +1,39 @@
-#!/usr/bin/python
+#!/usr/bin/python3.6
 """
 Authors: Gaetano Carlucci, Giuseppe Cofano
 Modified: Zachary Weeden
 """
 import os
 import sys
+import pathlib
 import subprocess
 import multiprocessing
 
+
 class CPULoad:
     """
-    Constructs necessary python files on instantiation and runs the package with parameters specified. For each core a new
-    process is opened to mitigate issues and locks similar to piped invocation in the original script.
+    Constructs necessary python files (if needed) on instantiation and runs the package with parameters specified.
+    For each core a new process is opened to mitigate issues and locks similar to piped invocation in the original script.
     """
+
     def __init__(self):
 
         self.file_path = os.path.expanduser('~')
-        with open(f'{self.file_path}/cpuStress.py', 'w') as f:
-            f.write(cpu_load_main)
+        if pathlib.Path(f'{self.file_path}/cpuStress.py').is_file() is False:
+            with open(f'{self.file_path}/cpuStress.py', 'w') as f:
+                f.write(cpu_load_main)
 
-        with open(f'{self.file_path}/Monitor.py', 'w') as f:
-            f.write(monitor)
+        if pathlib.Path(f'{self.file_path}/Monitor.py').is_file() is False:
+            with open(f'{self.file_path}/Monitor.py', 'w') as f:
+                f.write(monitor)
 
-        with open(f'{self.file_path}/Controller.py', 'w') as f:
-            f.write(controller)
+        if pathlib.Path(f'{self.file_path}/Controller.py').is_file() is False:
+            with open(f'{self.file_path}/Controller.py', 'w') as f:
+                f.write(controller)
 
-        with open(f'{self.file_path}/closedLoopActuator.py', 'w') as f:
-            f.write(actuator)
+        if pathlib.Path(f'{self.file_path}/closedLoopActuator.py').is_file() is False:
+            with open(f'{self.file_path}/closedLoopActuator.py', 'w') as f:
+                f.write(actuator)
 
     def run(self, core_num, load_percent):
         subprocess.Popen(['python', f'{self.file_path}/cpuStress.py', core_num, load_percent])
@@ -38,8 +45,8 @@ from Monitor import MonitorThread
 from Controller import ControllerThread
 from closedLoopActuator import closedLoopActuator
 
-cpu_load_float = float(sys.argv[-1])
-core_num = int(sys.argv[-2])
+cpu_load_float = float(sys.argv[-1]) # BETTER ARG PARSING HERE
+core_num = int(sys.argv[-2])         # BETTER ARG PARSING HERE
 monitor = MonitorThread([core_num], 0.1)
 monitor.start()
 
@@ -176,7 +183,8 @@ class closedLoopActuator():
             self.generate_load(sleep_time)
 """
 
-cpu_load_percent = sys.argv[-1] # ./deploy .25
+# BETTER ARG PARSING HERE
+cpu_load_percent = sys.argv[-1]  # eg. ./deploy .25
 stressor = CPULoad()
 for core in range(multiprocessing.cpu_count()):
     stressor.run(str(core), cpu_load_percent)
