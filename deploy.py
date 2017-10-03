@@ -4,11 +4,9 @@ Authors: Gaetano Carlucci, Giuseppe Cofano
 Modified: Zachary Weeden
 """
 import os
-import sys
 import pathlib
 import subprocess
 import multiprocessing
-
 
 class CPULoad:
     """
@@ -35,27 +33,39 @@ class CPULoad:
             with open(f'{self.file_path}/closedLoopActuator.py', 'w') as f:
                 f.write(actuator)
 
-    def run(self, core_num, load_percent):
-        subprocess.Popen(['python', f'{self.file_path}/cpuStress.py', core_num, load_percent])
+    def load(self, core_num, load_percent):
+        """
+        :param core_num: int - enum of cpu core
+        :param load_percent: float - percent of CPU loaded
+        :return:
+        """
+        subprocess.Popen(['python', f'{self.file_path}/cpuStress.py', str(core_num), str(load_percent)])
 
 
 cpu_load_main = """
 import sys
+import argparse
+
 from Monitor import MonitorThread
 from Controller import ControllerThread
 from closedLoopActuator import closedLoopActuator
 
-cpu_load_float = float(sys.argv[-1]) # BETTER ARG PARSING HERE
-core_num = int(sys.argv[-2])         # BETTER ARG PARSING HERE
-monitor = MonitorThread([core_num], 0.1)
+parser = argparse.ArgumentParser(description='Load designated CPU cores to certain percent')
+parser.add_argument('--cpu-core', type=int, default=0, help='Core to be run on')
+parser.add_argument('--cpu-load', type=float, default=.2, help='CPU load - percent used eg. .20')
+options = parser.parse_args()
+
+cpu_config = vars(options)
+
+monitor = MonitorThread([cpu_config['cpu_core']], 0.1)
 monitor.start()
 
 control = ControllerThread(0.1)
 control.start()
-control.setCpuTarget(cpu_load_float) # float eg. .1 =10% 1.0=100%
+control.setCpuTarget(cpu_config['cpu_load']) # float eg. .1 =10% 1.0=100%
 
 # control thread, monitor thread, desired cpu usage
-actuator = closedLoopActuator(control, monitor, cpu_load_float)
+actuator = closedLoopActuator(control, monitor, cpu_config['cpu_load'])
 actuator.run()
 
 monitor.running = 0
@@ -183,9 +193,6 @@ class closedLoopActuator():
             self.generate_load(sleep_time)
 """
 
-# BETTER ARG PARSING HERE
-cpu_load_percent = sys.argv[-1]  # eg. ./deploy .25
-stressor = CPULoad()
+stressor=CPULoad()
 for core in range(multiprocessing.cpu_count()):
-    stressor.run(str(core), cpu_load_percent)
-
+    stressor.load(core, .33)
