@@ -8,6 +8,7 @@ import pathlib
 import subprocess
 import multiprocessing
 
+
 class CPULoad:
     """
     Constructs necessary python files (if needed) on instantiation and runs the package with parameters specified.
@@ -17,20 +18,20 @@ class CPULoad:
     def __init__(self):
 
         self.file_path = os.path.expanduser('~')
-        if pathlib.Path(f'{self.file_path}/cpuStress.py').is_file() is False:
-            with open(f'{self.file_path}/cpuStress.py', 'w') as f:
+        if pathlib.Path(f'{self.file_path}/cpu_stress.py').is_file() is False:
+            with open(f'{self.file_path}/cpu_stress.py', 'w') as f:
                 f.write(cpu_load_main)
 
-        if pathlib.Path(f'{self.file_path}/Monitor.py').is_file() is False:
-            with open(f'{self.file_path}/Monitor.py', 'w') as f:
+        if pathlib.Path(f'{self.file_path}/monitor.py').is_file() is False:
+            with open(f'{self.file_path}/monitor.py', 'w') as f:
                 f.write(monitor)
 
-        if pathlib.Path(f'{self.file_path}/Controller.py').is_file() is False:
-            with open(f'{self.file_path}/Controller.py', 'w') as f:
+        if pathlib.Path(f'{self.file_path}/controller.py').is_file() is False:
+            with open(f'{self.file_path}/controller.py', 'w') as f:
                 f.write(controller)
 
-        if pathlib.Path(f'{self.file_path}/closedLoopActuator.py').is_file() is False:
-            with open(f'{self.file_path}/closedLoopActuator.py', 'w') as f:
+        if pathlib.Path(f'{self.file_path}/closed_loop_actuator.py').is_file() is False:
+            with open(f'{self.file_path}/closed_loop_actuator.py', 'w') as f:
                 f.write(actuator)
 
     def load(self, core_num, load_percent):
@@ -39,16 +40,17 @@ class CPULoad:
         :param load_percent: float - percent of CPU loaded
         :return:
         """
-        subprocess.Popen(['python', f'{self.file_path}/cpuStress.py', '--cpu-core', str(core_num), '--cpu-load', str(load_percent)])
+        subprocess.Popen(
+            ['python', f'{self.file_path}/cpu_stress.py', '--cpu-core', str(core_num), '--cpu-load', str(load_percent)])
 
 
 cpu_load_main = """
 import sys
 import argparse
 
-from Monitor import MonitorThread
-from Controller import ControllerThread
-from closedLoopActuator import closedLoopActuator
+from monitor import MonitorThread
+from controller import ControllerThread
+from closed_loop_actuator import closedLoopActuator
 
 parser = argparse.ArgumentParser(description='Load designated CPU cores to certain percent')
 parser.add_argument('--cpu-core', type=int, default=0, help='Core to be run on')
@@ -193,6 +195,6 @@ class closedLoopActuator():
             self.generate_load(sleep_time)
 """
 
-stressor=CPULoad()
+stressor = CPULoad()
 for core in range(multiprocessing.cpu_count()):
     stressor.load(core, .33)
