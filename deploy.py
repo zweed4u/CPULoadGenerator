@@ -39,7 +39,7 @@ class CPULoad:
         :param load_percent: float - percent of CPU loaded
         :return:
         """
-        subprocess.Popen(['python', f'{self.file_path}/cpuStress.py', str(core_num), str(load_percent)])
+        subprocess.Popen(['python', f'{self.file_path}/cpuStress.py', '--cpu-core', str(core_num), '--cpu-load', str(load_percent)])
 
 
 cpu_load_main = """
