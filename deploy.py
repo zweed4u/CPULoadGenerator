@@ -37,9 +37,10 @@ class CPULoad:
     def load(self, core_num, load_percent):
         """
         :param core_num: int - enum of cpu core
-        :param load_percent: float - percent of CPU loaded
+        :param load_percent: float - percent of CPU loaded (0.0 - 100.0)
         :return:
         """
+        load_percent = float(load_percent/100)
         subprocess.Popen(
             ['python', f'{self.file_path}/cpu_stress.py', '--cpu-core', str(core_num), '--cpu-load', str(load_percent)])
 
